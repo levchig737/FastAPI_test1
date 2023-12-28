@@ -1,8 +1,15 @@
 from pydantic import BaseModel
+from models.user import UserRole
 
 
-class User(BaseModel):
-    """
-    Передача данных между слоями приложения (database-services/task, database-routers/task)
-    """
-    name: str
+class UserBase(BaseModel):
+    username: str
+    role: UserRole
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserUpdate(UserBase):
+    password: str

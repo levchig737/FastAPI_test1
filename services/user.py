@@ -1,49 +1,42 @@
-from models.user import User
+from typing import Type
+
 from sqlalchemy.orm import Session
-from dto import user
+from models.user import User
+from dto.user import UserCreate, UserUpdate
 
 
-def create_user(data: user.User, db: Session):
-    """
-    Добавления пользователя в таблицу
-    :param data: Пользователь
-    :param db: текущая сессия
-    :return: добавленный пользователь
-    """
-    user = User(name=data.name)
-
-    try:
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    except Exception as e:
-        print(e)
-
-    return user
-
-
-def get_user(id: int, db: Session):
-    """
-    Возвращает пользователя по id
-    :param id:
-    :param db:
-    :return:
-    """
-    return db.query(User).filter(User.id == id).first()
-
-
-def update(id: int, data: user.User, db: Session):
-    user = db.query(User).filter(User.id == id).first()
-    user.name = data.name
+def create_user(data: UserCreate, db: Session) -> User:
+    user = User(**data.dict())
     db.add(user)
     db.commit()
     db.refresh(user)
-
     return user
 
 
-def remove(id: int, db: Session):
+def get_user_by_id(id: int, db: Session) -> User | None:
+    return db.query(User).filter(User.id == id).first()
+
+
+def get_user_by_username(username: str, db: Session) -> User | None:
+    return db.query(User).filter(User.username == username).first()
+
+
+def get_users(db: Session) -> list[Type[User]]:
+    return db.query(User).all()
+
+
+def update_user(id: int, data: UserUpdate, db: Session) -> User | None:
+    user = get_user_by_id(id, db)
+    if user:
+        for field, value in data.dict(exclude_unset=True).items():
+            setattr(user, field, value)
+        db.commit()
+        db.refresh(user)
+        return user
+    return None
+
+
+def delete_user(id: int, db: Session) -> int:
     user = db.query(User).filter(User.id == id).delete()
     db.commit()
-
     return user
