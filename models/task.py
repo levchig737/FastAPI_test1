@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -33,6 +33,12 @@ class StatusType(str, Enum):
     wontfix = "Wontfix"
 
 
+blocking_tasks_table = Table('blocking_tasks', Base.metadata,
+                             Column('task_id', ForeignKey('tasks.id'), primary_key=True),
+                             Column('blocked_task_id', ForeignKey('tasks.id'), primary_key=True)
+                             )
+
+
 class Task(Base):
     """
     Таблица tasks
@@ -40,7 +46,7 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-    task_number = Column(Integer, unique=True, index=True, nullable=False)
+    task_number = Column(Integer, index=True, nullable=False)
     task_type: TaskType = Column(String, nullable=False)
     priority: Optional[PriorityType] = Column(String)
     status: StatusType = Column(String, nullable=False)
@@ -50,10 +56,21 @@ class Task(Base):
     creator = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    # blocking_tasks = relationship("BlockingTask", back_populates="task")
 
+    # Заблокированные задачи
+    blocking_tasks = relationship(
+        'Task',
+        secondary=blocking_tasks_table,
+        primaryjoin=id == blocking_tasks_table.c.task_id,
+        secondaryjoin=id == blocking_tasks_table.c.blocked_task_id,
+        back_populates='blocked_by_tasks'
+    )
 
-
-
-
-
+    # Блокирующие задачи
+    blocked_by_tasks = relationship(
+        'Task',
+        secondary=blocking_tasks_table,
+        primaryjoin=id == blocking_tasks_table.c.blocked_task_id,
+        secondaryjoin=id == blocking_tasks_table.c.task_id,
+        back_populates='blocking_tasks'
+    )

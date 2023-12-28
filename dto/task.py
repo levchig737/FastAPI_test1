@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 from models.task import TaskType, PriorityType, StatusType
@@ -16,4 +16,5 @@ class Task(BaseModel):
     description: Optional[str] = None
     performer: Optional[str] = None
     creator: str
-    # blocking_tasks: Optional[list] = None
+    blocking_tasks: Optional[List[int]] = []
+    # blocked_by_tasks: Optional[List[int]] = []

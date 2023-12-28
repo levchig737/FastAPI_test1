@@ -4,7 +4,11 @@ from dto import task as TaskDTO
 
 
 def create_task(data: TaskDTO.Task, db: Session) -> Task:
-    task = Task(**data.dict())
+    blocking_tasks = db.query(Task).filter(Task.id.in_(data.blocking_tasks)).all()
+
+    task_data = data.dict(exclude={'blocking_tasks'})
+    task = Task(**task_data)
+    task.blocking_tasks = blocking_tasks
 
     try:
         db.add(task)

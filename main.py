@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from database import SessionLocal, engine, Base
+from database import engine, Base
 from routers import user as UserRouter
 from routers import task as TaskRouter
 
