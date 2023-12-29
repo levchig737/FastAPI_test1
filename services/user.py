@@ -14,6 +14,7 @@ def create_user(data: UserCreate, db: Session) -> User:
 
 
 def get_user_by_id(id: int, db: Session) -> User | None:
+
     return db.query(User).filter(User.id == id).first()
 
 
