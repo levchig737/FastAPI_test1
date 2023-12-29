@@ -14,7 +14,15 @@ class Task(BaseModel):
     status: StatusType
     title: str
     description: Optional[str] = None
-    performer: Optional[str] = None
+    performer_id: Optional[int] = -1
     creator: str
     blocking_tasks: Optional[List[int]] = []
-    # blocked_by_tasks: Optional[List[int]] = []
+
+
+class ReadTask(Task):
+    blocked_by_tasks: Optional[List[int]] = []
+
+
+class UpdateTaskStatusAndPerformer(BaseModel):
+    status: StatusType
+    performer_id: Optional[int] = -1

@@ -22,10 +22,6 @@ def get_user_by_username(username: str, db: Session) -> User | None:
     return db.query(User).filter(User.username == username).first()
 
 
-def get_users(db: Session) -> list[Type[User]]:
-    return db.query(User).all()
-
-
 def update_user(id: int, data: UserUpdate, db: Session) -> User | None:
     user = get_user_by_id(id, db)
     if user:

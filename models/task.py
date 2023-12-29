@@ -32,6 +32,38 @@ class StatusType(str, Enum):
     done = "Done"
     wontfix = "Wontfix"
 
+    def to_int(self):
+        return StatusTypeInt[self.name].value
+
+    def __lt__(self, other):
+        return self.to_int() < other.to_int()
+
+    def __le__(self, other):
+        return self.to_int() <= other.to_int()
+
+    def __gt__(self, other):
+        return self.to_int() > other.to_int()
+
+    def __ge__(self, other):
+        return self.to_int() >= other.to_int()
+
+    @classmethod
+    def from_string(cls, value: str):
+        for status in cls:
+            if status.value == value or status.name == value:
+                return status
+        raise ValueError(f"Invalid status: {value}")
+
+
+class StatusTypeInt(int, Enum):
+    to_do = 1
+    in_progress = 2
+    code_review = 3
+    dev_test = 4
+    testing = 5
+    done = 6
+    wontfix = 7
+
 
 blocking_tasks_table = Table('blocking_tasks', Base.metadata,
                              Column('task_id', ForeignKey('tasks.id'), primary_key=True),
@@ -52,10 +84,11 @@ class Task(Base):
     status: StatusType = Column(String, nullable=False)
     title = Column(String, nullable=False)
     description: Optional[str] = Column(String)
-    performer: Optional[str] = Column(String)
     creator = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    performer_id: Optional[int] = Column(Integer)
 
     # Заблокированные задачи
     blocking_tasks = relationship(

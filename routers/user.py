@@ -17,12 +17,12 @@ fastapi_users = FastAPIUsers[User, int](
 )
 
 
-@router.post('/register', tags=["user"])
-async def register_user(data: UserCreate, db: Session = Depends(get_db)):
-    existing_user = UserService.get_user_by_username(data.username, db)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    return UserService.create_user(data, db)
+# @router.post('/register', tags=["user"])
+# async def register_user(data: UserCreate, db: Session = Depends(get_db)):
+#     existing_user = UserService.get_user_by_username(data.username, db)
+#     if existing_user:
+#         raise HTTPException(status_code=400, detail="Username already registered")
+#     return UserService.create_user(data, db)
 
 
 @router.get('/{id}', tags=["user"])
@@ -34,11 +34,6 @@ async def get_user(id: int, cur_user: User = Depends(fastapi_users.current_user(
     if user_db is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user_db
-
-
-@router.get('/', tags=["user"])
-async def get_users(db: Session = Depends(get_db)):
-    return UserService.get_users(db)
 
 
 @router.put('/{id}', tags=["user"])
